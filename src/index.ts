@@ -1,8 +1,18 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import express from 'express';
 
-// Create MCP Server
+// Express 健康检查服务器
+const healthApp = express();
+healthApp.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy' });
+});
+healthApp.listen(8000, () => {
+  console.log('Health check server running on port 8000');
+});
+
+// MCP 服务器
 const server = new Server(
   { name: 'sequential-thinking-mcp', version: '1.0.0' },
   { capabilities: { tools: {} } }
@@ -49,7 +59,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   throw new Error(`Unknown tool: ${name}`);
 });
 
-// Start server
+// 启动 MCP 服务器
 const transport = new StdioServerTransport();
 server.connect(transport);
 
