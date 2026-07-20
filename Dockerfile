@@ -39,4 +39,4 @@ COPY --from=builder /app/dist ./dist
 EXPOSE 8000
 
 # 启动命令：使用 supergateway 将 stdio 转 SSE，并提供健康检查
-CMD ["npx", "supergateway", "--stdio", "node dist/index.js", "--port", "8000", "--healthPath", "/health"]
+CMD ["sh", "-c", "npx supergateway --stdio 'node dist/index.js' --port 8000 --healthPath /health"]
