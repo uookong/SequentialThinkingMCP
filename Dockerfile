@@ -42,5 +42,9 @@ COPY --from=builder /app/dist ./dist
 # 暴露端口
 EXPOSE 8000
 
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8000/health || exit 1
+
 # 启动命令（通过 supergateway 将 stdio 转 SSE）
 CMD ["node", "dist/index.js"]
