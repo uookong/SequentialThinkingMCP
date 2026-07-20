@@ -1,18 +1,20 @@
+# Use official Node.js 20 image
 FROM node:20-alpine
 
+# Set working directory
 WORKDIR /app
+
+# Copy package files
 COPY package*.json ./
 
-# 安装依赖
-RUN npm install --omit=dev
+# Install dependencies
+RUN npm ci --only=production
 
-COPY src ./src
+# Copy source files
+COPY . ./
 
-# 暴露主服务端口和健康检查端口
-EXPOSE 3000 10000
+# Build TypeScript
+RUN npm run build
 
-ENV NODE_ENV=production
-ENV PORT=3000
-
-# 启动服务
-CMD ["node", "src/sequentialthinking/index.js"]
+# Use supergateway to convert stdio to SSE
+CMD ["npx", "supergateway", "node", "dist/index.js", "--healthPath", "/health"]
