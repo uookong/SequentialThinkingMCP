@@ -29,19 +29,16 @@ ENV NODE_ENV=production
 # 复制 package 文件
 COPY package*.json ./
 
-# 安装生产环境依赖与 supergateway
+# 安装生产环境依赖与 supergateway 全局工具
 RUN npm ci --omit=dev && \
     npm install -g supergateway
 
 # 从第一阶段（builder）中复制编译好的 dist 目录
 COPY --from=builder /app/dist ./dist
 
-# 复制启动脚本并赋予可执行权限
-COPY start.sh ./
-RUN chmod +x ./start.sh
-
 # 暴露端口
 EXPOSE 8000
 
-# 启动命令
-CMD ["./start.sh"]
+# 直接由 supergateway 作为 PID 1 主进程启动
+# 强制绑定 0.0.0.0 网络并开启 / 健康检查路径
+CMD ["supergateway", "--port", "8000", "--host", "0.0.0.0", "--health-path", "/", "--cors", "--stdio", "node dist/index.js"]
